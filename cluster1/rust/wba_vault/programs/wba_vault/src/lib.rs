@@ -57,6 +57,17 @@ pub mod wba_vault {
 
     // deposit SPL
     pub fn deposit_spl(ctx: Context<DepositSpl>, amount: u64) -> Result<()> {
+        /*let cpi_program = ctx.accounts.token_program.to_account_info();
+               let cpi_accounts = anchor_spl::token::Transfer {
+                   from: ctx.accounts.owner_ata.to_account_info(),
+                   to: ctx.accounts.vault_ata.to_account_info(),
+                   authority: ctx.accounts.owner.to_account_info(),
+               };
+               let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
+
+               anchor_spl::token::transfer(cpi_context, amount)?;
+        */
+
         let cpi_accounts = anchor_spl::token::Transfer {
             from: ctx.accounts.owner_ata.to_account_info(),
             to: ctx.accounts.vault_ata.to_account_info(),
@@ -65,8 +76,8 @@ pub mod wba_vault {
 
         let cpi_context =
             CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
-
         anchor_spl::token::transfer(cpi_context, amount)?;
+
         Ok(())
     }
 }
@@ -122,7 +133,7 @@ pub struct DepositSpl<'info> {
     pub owner_ata: Account<'info, TokenAccount>,
     #[account(mut, has_one = owner)]
     pub vault_state: Account<'info, VaultState>,
-    #[account(init_if_needed, payer = owner, associated_token::mint = token_mint, associated_token::authority = owner)]
+    #[account(mut)]
     pub vault_ata: Account<'info, TokenAccount>,
     pub token_mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
