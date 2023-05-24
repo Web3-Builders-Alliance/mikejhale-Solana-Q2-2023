@@ -72,7 +72,6 @@ describe('wbavault', async () => {
 
   it('Deposit SOL', async () => {
     const vaultBeforeBalance = await provider.connection.getBalance(vaultKey);
-    console.log(vaultBeforeBalance);
     const txhash = await program.methods
       .deposit(new BN(0.1 * LAMPORTS_PER_SOL))
       .accounts({
@@ -94,7 +93,6 @@ describe('wbavault', async () => {
 
   it('Withdraw SOL', async () => {
     const vaultBeforeBalance = await provider.connection.getBalance(vaultKey);
-    console.log(vaultBeforeBalance);
     const txhash = await program.methods
       .withdraw(new BN(0.1 * LAMPORTS_PER_SOL))
       .accounts({
@@ -104,7 +102,7 @@ describe('wbavault', async () => {
         vault: vaultKey,
         systemProgram: SystemProgram.programId,
       })
-
+      .signers([keypair])
       .rpc();
 
     const vaultAfterBalance = await provider.connection.getBalance(vaultKey);

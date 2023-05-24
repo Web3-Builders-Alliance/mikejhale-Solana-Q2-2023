@@ -37,8 +37,18 @@ pub mod wba_vault {
             to: ctx.accounts.owner.to_account_info(),
         };
 
-        let cpi_context =
-            CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts);
+        let seeds = &[
+            "vault".as_bytes(),
+            &ctx.accounts.vault_auth.to_account_info().key.as_ref(),
+            &[ctx.accounts.vault_state.vault_bump],
+        ];
+
+        let signer_seeds = &[&seeds[..]];
+        let cpi_context = CpiContext::new_with_signer(
+            ctx.accounts.system_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
 
         // TODO: check the amount is less than the vault balance
         anchor_lang::system_program::transfer(cpi_context, amount)?;
