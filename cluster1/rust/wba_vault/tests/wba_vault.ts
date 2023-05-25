@@ -81,7 +81,7 @@ describe('wbavault', async () => {
       mint,
       ownerAta.address,
       keypair,
-      1500000000
+      1000000000
     );
 
     const tokenAccount =
@@ -96,7 +96,7 @@ describe('wbavault', async () => {
       tokenAccount.value[0].pubkey
     );
 
-    expect('1500000000').to.equal(tokenAmount.value.amount);
+    expect('1000000000').to.equal(tokenAmount.value.amount);
   });
 
   it('Is initialized', async () => {
@@ -184,9 +184,19 @@ describe('wbavault', async () => {
       })
       .signers([keypair])
       .rpc();
+
+    const tokenAccount =
+      await provider.connection.getParsedTokenAccountsByOwner(vaultAuthKey, {
+        mint: mint,
+      });
+
+    const tokenAmount = await provider.connection.getTokenAccountBalance(
+      tokenAccount.value[0].pubkey
+    );
+
+    expect('100000000').to.equal(tokenAmount.value.amount);
   });
 
-  /*
   it('Withdraw SPL', async () => {
     let ownerAta = await getOrCreateAssociatedTokenAccount(
       provider.connection,
@@ -203,9 +213,8 @@ describe('wbavault', async () => {
       true
     );
 
-    const vaultBeforeBalance = await provider.connection.getBalance(vaultKey);
     const txhash = await program.methods
-      .withdraw_spl(new BN(0.1 * LAMPORTS_PER_SOL))
+      .withdrawSpl(new BN(0.1 * LAMPORTS_PER_SOL))
       .accounts({
         owner: keypair.publicKey,
         vaultState: vaultState.publicKey,
@@ -213,16 +222,23 @@ describe('wbavault', async () => {
         ownerAta: ownerAta.address,
         vaultAta: vaultAta.address,
         tokenMint: mint,
-        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
       })
       .signers([keypair])
       .rpc();
 
-    const vaultAfterBalance = await provider.connection.getBalance(vaultKey);
+    const tokenAccount =
+      await provider.connection.getParsedTokenAccountsByOwner(
+        keypair.publicKey,
+        {
+          mint: mint,
+        }
+      );
 
-    expect(vaultAfterBalance).to.equal(
-      vaultBeforeBalance - 0.1 * LAMPORTS_PER_SOL
+    const tokenAmount = await provider.connection.getTokenAccountBalance(
+      tokenAccount.value[0].pubkey
     );
+
+    expect('1000000000').to.equal(tokenAmount.value.amount);
   });
-  */
 });

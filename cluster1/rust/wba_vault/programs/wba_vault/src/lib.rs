@@ -57,17 +57,6 @@ pub mod wba_vault {
 
     // deposit SPL
     pub fn deposit_spl(ctx: Context<DepositSpl>, amount: u64) -> Result<()> {
-        /*let cpi_program = ctx.accounts.token_program.to_account_info();
-               let cpi_accounts = anchor_spl::token::Transfer {
-                   from: ctx.accounts.owner_ata.to_account_info(),
-                   to: ctx.accounts.vault_ata.to_account_info(),
-                   authority: ctx.accounts.owner.to_account_info(),
-               };
-               let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-
-               anchor_spl::token::transfer(cpi_context, amount)?;
-        */
-
         let cpi_accounts = anchor_spl::token::Transfer {
             from: ctx.accounts.owner_ata.to_account_info(),
             to: ctx.accounts.vault_ata.to_account_info(),
@@ -76,6 +65,31 @@ pub mod wba_vault {
 
         let cpi_context =
             CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
+        anchor_spl::token::transfer(cpi_context, amount)?;
+
+        Ok(())
+    }
+
+    // withdraw SPL
+    pub fn withdraw_spl(ctx: Context<WithdrawSpl>, amount: u64) -> Result<()> {
+        let cpi_accounts = anchor_spl::token::Transfer {
+            from: ctx.accounts.vault_ata.to_account_info(),
+            to: ctx.accounts.owner_ata.to_account_info(),
+            authority: ctx.accounts.vault_auth.to_account_info(),
+        };
+
+        let seeds = &[
+            "auth".as_bytes(),
+            &ctx.accounts.vault_state.key().clone().to_bytes(),
+            &[ctx.accounts.vault_state.auth_bump],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_context = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
         anchor_spl::token::transfer(cpi_context, amount)?;
 
         Ok(())
