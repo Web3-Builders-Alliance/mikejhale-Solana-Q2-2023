@@ -1,7 +1,7 @@
 import { Connection, Keypair, SystemProgram, PublicKey } from '@solana/web3.js';
 import { Program, Wallet, AnchorProvider, Address } from '@coral-xyz/anchor';
 import { WbaVault, IDL } from './wba_vault';
-import wallet from '../wba-wallet.json';
+import wallet from '../../wba-wallet.json';
 
 /*
 -Load the IDL for the WBA Vault
@@ -17,7 +17,7 @@ const keypair = Keypair.fromSecretKey(new Uint8Array(wallet));
 const vaultState = Keypair.generate();
 
 // Create a devnet connection
-const connection = new Connection('https://api.devnet.solana.com', commitment);
+const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 // Create our anchor provider
 const provider = new AnchorProvider(connection, new Wallet(keypair), {

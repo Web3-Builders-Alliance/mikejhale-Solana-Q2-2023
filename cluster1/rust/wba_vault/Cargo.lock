@@ -681,6 +681,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "escrow"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "solana-program",
+ "toml_datetime",
+ "winnow",
+]
+
+[[package]]
 name = "feature-probe"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
