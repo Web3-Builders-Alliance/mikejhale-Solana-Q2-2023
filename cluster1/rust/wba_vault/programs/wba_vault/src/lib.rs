@@ -103,6 +103,10 @@ pub mod wba_vault {
 
         Ok(())
     }
+
+    pub fn close_account(ctx: Context<CloseAccount>) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -182,11 +186,14 @@ pub struct WithdrawSpl<'info> {
 }
 
 #[derive(Accounts)]
-pub struct CloseVault<'info> {
+pub struct CloseAccount<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
-    #[account(mut)]
+    #[account(mut, has_one = owner, close = owner)]
+    pub close_vault_state: Account<'info, VaultState>,
+    #[account(mut, has_one = owner)]
     pub vault_state: Account<'info, VaultState>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
