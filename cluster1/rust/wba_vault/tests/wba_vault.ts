@@ -239,6 +239,11 @@ describe('wbavault', async () => {
       tokenAccount.value[0].pubkey
     );
 
+    const vaultStateAccount = await program.account.vaultState.fetch(
+      vaultState.publicKey
+    );
+
     expect('1000000000').to.equal(tokenAmount.value.amount);
+    expect(vaultStateAccount.score).to.equal(4);
   });
 });

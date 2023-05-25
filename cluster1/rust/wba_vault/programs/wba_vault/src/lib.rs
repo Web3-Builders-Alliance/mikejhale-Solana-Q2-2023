@@ -27,6 +27,9 @@ pub mod wba_vault {
         let cpi_context =
             CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts);
         anchor_lang::system_program::transfer(cpi_context, amount)?;
+
+        ctx.accounts.vault_state.score = 1;
+
         Ok(())
     }
 
@@ -52,6 +55,8 @@ pub mod wba_vault {
 
         // TODO: check the amount is less than the vault balance
         anchor_lang::system_program::transfer(cpi_context, amount)?;
+
+        ctx.accounts.vault_state.score = 2;
         Ok(())
     }
 
@@ -66,6 +71,8 @@ pub mod wba_vault {
         let cpi_context =
             CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
         anchor_spl::token::transfer(cpi_context, amount)?;
+
+        ctx.accounts.vault_state.score = 3;
 
         Ok(())
     }
@@ -91,6 +98,8 @@ pub mod wba_vault {
             signer_seeds,
         );
         anchor_spl::token::transfer(cpi_context, amount)?;
+
+        ctx.accounts.vault_state.score = 4;
 
         Ok(())
     }
