@@ -1,6 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { BN } from '@coral-xyz/anchor';
-import { AnchorEscrow2023, IDL } from '../target/types/anchor_escrow_2023';
+import { Escrow, IDL } from '../target/types/escrow';
 import { PublicKey, Commitment, Keypair, SystemProgram } from '@solana/web3.js';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID as associatedTokenProgram,
@@ -25,9 +25,9 @@ describe('anchor-escrow-2023', () => {
   const commitment: Commitment = 'confirmed'; // processed, confirmed, finalized
 
   const programId = new PublicKey(
-    '5rJDGSxbwrbi6CB2MgZKV3Q2gLwr9Bx9vYuiC9wv6h7X'
+    '6j38zixP6GMShtWXK1UWTfRUq7Situw6BBLaQsaHAPhf'
   );
-  const program = new anchor.Program<AnchorEscrow2023>(
+  const program = new anchor.Program<Escrow>(
     IDL,
     programId,
     anchor.getProvider()
@@ -78,6 +78,7 @@ describe('anchor-escrow-2023', () => {
           );
       })
     ).then(confirmTxs);
+    console.log('programId:', programId.toBase58());
   });
 
   it('Mint maker/taker tokens', async () => {
@@ -106,13 +107,44 @@ describe('anchor-escrow-2023', () => {
     );
   });
 
+  it("Make an escrow that's out of bounds", async () => {
+    try {
+      const signature = await program.methods
+        .make(
+          seed,
+          new anchor.BN(10 * 1e6),
+          new anchor.BN(20 * 1e6),
+          new anchor.BN(100000)
+        )
+        .accounts({
+          maker: maker.publicKey,
+          makerAta: maker_ata,
+          makerToken: maker_token,
+          takerToken: taker_token,
+          auth,
+          escrow,
+          vault,
+          tokenProgram,
+          associatedTokenProgram,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([maker])
+        .rpc({ skipPreflight: true });
+      console.log('TX: ', signature);
+      await confirmTx;
+    } catch (error) {
+      console.log(error.msg);
+      assert(error.msg == 'Your expiry is too far in the future.');
+    }
+  });
+
   it('Make an escrow', async () => {
     const signature = await program.methods
       .make(
         seed,
         new anchor.BN(10 * 1e6),
         new anchor.BN(20 * 1e6),
-        new anchor.BN(10000)
+        new anchor.BN(1000)
       )
       .accounts({
         maker: maker.publicKey,
@@ -131,33 +163,7 @@ describe('anchor-escrow-2023', () => {
     console.log('TX: ', signature);
     await confirmTx;
   });
-  /*
-  it('Make an escrow with invalid expiry', async () => {
-    const signature = await program.methods
-      .make(
-        seed,
-        new anchor.BN(10 * 1e6),
-        new anchor.BN(20 * 1e6),
-        new anchor.BN(100_001)
-      )
-      .accounts({
-        maker: maker.publicKey,
-        makerAta: maker_ata,
-        makerToken: maker_token,
-        takerToken: taker_token,
-        auth,
-        escrow,
-        vault,
-        tokenProgram,
-        associatedTokenProgram,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([maker])
-      .rpc();
-    console.log('TX: ', signature);
-    await confirmTx;
-  });
-*/
+
   it('Remake an existing escrow', async () => {
     let error = null;
     try {
@@ -166,7 +172,7 @@ describe('anchor-escrow-2023', () => {
           seed,
           new anchor.BN(10 * 1e6),
           new anchor.BN(20 * 1e6),
-          new anchor.BN(100000)
+          new anchor.BN(0)
         )
         .accounts({
           maker: maker.publicKey,
@@ -219,7 +225,7 @@ describe('anchor-escrow-2023', () => {
         seed,
         new anchor.BN(10 * 1e6),
         new anchor.BN(20 * 1e6),
-        new anchor.BN(10_000)
+        new anchor.BN(1000)
       )
       .accounts({
         maker: maker.publicKey,
@@ -243,7 +249,7 @@ describe('anchor-escrow-2023', () => {
 
   it('Update an escrow', async () => {
     const signature = await program.methods
-      .update(new anchor.BN(12 * 1e6), new anchor.BN(10_000))
+      .update(new anchor.BN(12 * 1e6), new anchor.BN(0))
       .accounts({
         maker: maker.publicKey,
         newTakerToken: taker_token,
@@ -258,25 +264,6 @@ describe('anchor-escrow-2023', () => {
     await confirmTx;
   });
 
-  /*
-  it('Update an expired escrow', async () => {
-    const signature = await program.methods
-      .update(new anchor.BN(12 * 1e6), new anchor.BN(1))
-      .accounts({
-        maker: maker.publicKey,
-        newTakerToken: taker_token,
-        escrow,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([maker])
-      .rpc();
-    console.log('Vault TA:', vault.toBase58());
-    console.log('Escrow account:', escrow.toBase58());
-    console.log('TX: ', signature);
-    await confirmTx;
-    setTimeout(() => {}, 2000);
-  });
-*/
   it('Take an escrow', async () => {
     try {
       const signature = await program.methods

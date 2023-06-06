@@ -8,7 +8,7 @@ wba_vault = "GYatJTRxmLz6K6xMuNY9dprfbtLj8jZJ46TpRAqYk8wL"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "/home/mike/.config/solana/dev-phantom.json"
 
 [scripts]

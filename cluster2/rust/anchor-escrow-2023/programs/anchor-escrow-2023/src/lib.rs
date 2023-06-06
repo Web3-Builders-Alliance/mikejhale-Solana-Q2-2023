@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("pCrLE3Ygn9efmpn6HC6ZDd9PKJHZEuebVERnFQ2JjXB");
+declare_id!("5rJDGSxbwrbi6CB2MgZKV3Q2gLwr9Bx9vYuiC9wv6h7X");
 
 mod errors;
 use errors::EscrowError;

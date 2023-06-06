@@ -2,13 +2,13 @@
 seeds = true
 skip-lint = false
 [programs.localnet]
-anchor_escrow_2023 = "pCrLE3Ygn9efmpn6HC6ZDd9PKJHZEuebVERnFQ2JjXB"
+anchor_escrow_2023 = "5rJDGSxbwrbi6CB2MgZKV3Q2gLwr9Bx9vYuiC9wv6h7X"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "/home/mike/.config/solana/dev-phantom.json"
 
 [scripts]
